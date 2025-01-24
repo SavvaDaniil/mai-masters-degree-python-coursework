@@ -1,0 +1,63 @@
+{% extends "layout/main.html" %}
+
+{% load static %}
+
+{% block content %}
+
+
+{% include "partials/header_with_logout.html" with link_back=link_back %}
+
+<div class="container index">
+    <div class="row">
+
+        {% include "partials/index_menu.html" with active_tab="courses" %}
+
+        <div class="col-12"></div>
+
+        <div class="col-2 d-none d-md-block"></div>
+        <div class="col-12 col-lg-8 col-md-8 row panel courses">
+            
+            <div class="col-12 row">
+                <div class="col-12 text-center">
+                    <h3>Курсы</h3>
+                </div>
+                {% if coursePreviewViewModels %}
+                {% for coursePreviewViewModel in coursePreviewViewModels %}
+                    
+                    <div class="course-preview">
+                        <div>
+                            {% if coursePreviewViewModel.user_status == "closed" %}
+                            <h5>{{ coursePreviewViewModel.name }}</h5>
+                            {% else %}
+                            <a href="/course/{{ coursePreviewViewModel.id }}">
+                                <h5>{{ coursePreviewViewModel.name }}</h5>
+                            </a>
+                            {% endif %}
+                        </div>
+                        <br />
+                        <div class="text-center">
+                            {% if coursePreviewViewModel.user_status == "opened" %}
+
+                            <p class="status success">Доступ открыт</p>
+
+                            {% elif coursePreviewViewModel.user_status == "done" %}
+
+                            <p class="status success">Курс успешно сдан</p>
+
+                            {% else  %}
+                            
+                            <p class="status danger">Доступ закрыт</p>
+
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

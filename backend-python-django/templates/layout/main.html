@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <meta content="no-cache" http-equiv="Pragma" />
+        <meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control" />
+        <meta content="post-check=0, pre-check=0" http-equiv="Cache-Control" />
+        <meta content="0" http-equiv="Expires" />
+        <meta content="*" http-equiv="Clear-Site-Data" />
+
+        <title>
+        {% if title %}
+            {{ title }} | Mai DS - Онлайн платформа дистанционного образования
+        {% else %}
+            Mai DS | Онлайн платформа дистанционного образования
+        {% endif %}
+        </title>
+        
+        {% load static %}
+        <link rel="icon" type="image/x-icon" href="{% static '/favicon.ico' %}">
+        <link rel="stylesheet" href="{% static '/dist/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static '/fontawesome/css/font-awesome.min.css' %}" />
+        <link rel="stylesheet" href="{% static '/main.css' %}?version=1" />
+        <link rel="stylesheet" href="{% static '/main-mobile.css' %}?version=1" />
+    </head>
+    <body>
+        
+        {% block content %} {% endblock content %}
+
+    </body>
+</html>

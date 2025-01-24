@@ -1,0 +1,145 @@
+@media (max-width:961px) {
+
+}
+
+
+@media (max-width:641px) {
+
+    .modal-content {
+        padding:0;
+    }
+    
+    .border-right-d-md-block {
+        border-right: none;
+    }
+    .border-right-only-mobile {
+        border-right: 1px solid #C9C9C9;
+    }
+
+    header .btn-dots {
+        padding:25px 0;
+    }
+    .header-menu p a {
+        font-size:14px;
+    }
+    .header-menu .column-2 p {
+        margin-top: 20px;
+    }
+    .header-menu .contacts .name {
+        margin-top: 20px;
+    }
+    .header-menu .contacts .data {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .header-menu .contacts .phone {
+        margin: 10px 0 20px 0;
+        padding-top: 10px;
+    }
+    .header-menu .column-3 {
+        height: auto;
+    }
+
+    footer .footer-title {
+        font-size: 20px;
+    }
+    footer .contacts div.block .data {
+        font-size: 20px;
+    }
+
+    
+    footer .bottom {
+        font-size: 14px;
+    }
+    footer .bottom .to-top .btn {
+        padding:8px 18px;
+    }
+    footer .bottom .copyright {
+        text-align: center;
+    }
+    footer .menu ul {
+        padding-left: 12px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+    footer .menu ul li {
+        margin-bottom: 10px;
+    }
+
+    .main-logo .gradient-logo {
+        display: none;
+    }
+    .main-logo .main .title {
+        display: none;
+    }
+
+    .teacher-previews {
+        display: block;
+    }
+
+    .teacher-private-previews {
+        display: block;
+    }
+
+    
+    .schedule-row {
+        margin: 8px 0;
+    }
+    .schedule-row .col-3 {
+        padding: 0 4px;
+    }
+    .schedule-block {
+        padding: 12px 4px;
+        font-size: 9px;
+    }
+
+
+    .main.hall-rentals .control .dot {
+        height: 30px;
+        width: 30px;
+    }
+
+
+
+
+
+    
+    .page.teacher .description {
+        padding: 25px;
+    }
+    .page.teacher .description .blocks {
+        float: none;
+    }
+    .page.teacher .description h1 {
+        font-size: 26px;
+    }
+    .page.teacher .description p {
+        font-size: 14px;
+    }
+
+
+
+
+
+    .page.schedule .block-info-control h5 {
+        font-size: 14px;
+        margin: 8px 0;
+    }
+
+
+
+
+    .renthall-prices .tabs .tab-hall {
+        padding:8px;
+        font-size:8px;
+    }
+    .renthall-prices .tabs-days .tab-day {
+        padding:12px 0;
+        font-size:8px;
+    }
+    .renthall-prices table td {
+        padding:12px 0;
+        font-size:8px;
+    }
+}

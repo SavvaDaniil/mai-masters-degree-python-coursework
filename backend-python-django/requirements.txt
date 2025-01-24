@@ -1,0 +1,5 @@
+django==4.2
+django-cleanup==7.0.0
+psycopg2-binary==2.9.10
+sympy==1.11.1
+pillow==9.5.0

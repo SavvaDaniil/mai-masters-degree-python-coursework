@@ -1,0 +1,64 @@
+{% extends "layout/main.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+    <header class="row">
+        <div class="col-12 text-center">
+            <img class="img-fluid" alt="header" src="{% static '/images/header.svg' %}" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 text-right">
+            <a href="/courses">
+                <button type="button" class="btn btn-back">Назад</button>
+            </a>
+        </div>
+        <div class="col-12 col-lg-10 col-md-10">
+            <hr class="hr-header-big" />
+            <hr class="hr-header-small" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 div-for-logout">
+            {% if courseInfoViewModel %}
+            {% if not courseInfoViewModel.is_need_test %}
+            <button type="button" class="btn" disabled>Тест не предусмотрен</button>
+            {% elif courseInfoViewModel.course_test_id != 0 %}
+            <a href="/course/{{ courseInfoViewModel.id }}/test">
+                <button type="button" class="btn">Тест</button>
+            </a>
+            {% else %}
+            <button type="button" class="btn" disabled>Тест не установлен</button>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row page-course">
+
+        {% if courseInfoViewModel %}
+        <div class="col-2 d-none d-md-block"></div>
+        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+            <h2 class="name">{{ courseInfoViewModel.name }}</h2>
+
+            <div class="description">
+                {{ courseInfoViewModel.description | striptags | safe | linebreaks }}
+            </div>
+
+            <div class="lessons">
+                <h4>Уроки</h4>
+                {% if courseInfoViewModel.courseLessonPreviewViewModels %}
+                <ul>
+                    {% for courseLessonPreviewViewModel in courseInfoViewModel.courseLessonPreviewViewModels %}
+                        <li><a href="/course/{{ courseInfoViewModel.id }}/lesson/{{ courseLessonPreviewViewModel.id }}">{{ courseLessonPreviewViewModel.order_in_list }}. {{ courseLessonPreviewViewModel.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

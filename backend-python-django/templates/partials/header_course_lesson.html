@@ -1,0 +1,28 @@
+
+{% load static %}
+
+<div class="container">
+    <header class="row">
+        <div class="col-12 text-center">
+            <img class="img-fluid" alt="header" src="{% static '/images/header.svg' %}" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 text-right">
+            {% if link_back %}
+            <a href="{{ link_back }}">
+                <button type="button" class="btn btn-back">Назад</button>
+            </a>
+            {% else %}
+            <a href="/courses">
+                <button type="button" class="btn btn-back">Назад</button>
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-12 col-lg-10 col-md-10">
+            <hr class="hr-header-big" />
+            <hr class="hr-header-small" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 div-for-logout">
+            
+        </div>
+    </div>
+</div>

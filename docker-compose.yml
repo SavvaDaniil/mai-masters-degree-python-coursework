@@ -1,0 +1,48 @@
+#version: '3.0'
+
+services:
+
+  db:
+    image: postgres:14
+    container_name: db
+    networks:
+      - my_network
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=maidscpython_u
+      - POSTGRES_PASSWORD=lA8bS5qN6p
+      - POSTGRES_DB=maidatasciencepython
+    volumes:
+      - ./volumes/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      #test: ["CMD-SHELL", "pg_isready -d postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U maidscpython_u -d maidatasciencepython" ]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+  
+  backend-python-django:
+    build:
+      context: ./backend-python-django
+    container_name: backend-python-django
+    networks:
+      - my_network
+    ports:
+      - 5000:5000
+    depends_on:
+      db:
+        condition: service_healthy
+    # volumes:
+    #   - ./volumes/backend-python-django:/app/logfile.log
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=maidatasciencepython
+      - DATABASE_USERNAME=maidscpython_u
+      - DATABASE_PASSWORD=lA8bS5qN6p
+
+networks:
+  my_network:
+volumes:
+  postgres-data:

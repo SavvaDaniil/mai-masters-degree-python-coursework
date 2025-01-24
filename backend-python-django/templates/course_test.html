@@ -1,0 +1,298 @@
+{% extends "layout/main.html" %}
+
+{% load static %}
+
+{% block content %}
+
+
+<div class="container">
+    <header class="row">
+        <div class="col-12 text-center">
+            <img class="img-fluid" alt="header" src="{% static '/images/header.svg' %}" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 text-right">
+            {% if courseTestLiteViewModel and courseTestLiteViewModel.course_id != 0 %}
+            <a href="/course/{{ courseTestLiteViewModel.course_id }}">
+                <button type="button" class="btn btn-back">Назад</button>
+            </a>
+            {% else %}
+            <a href="/courses">
+                <button type="button" class="btn btn-back">Назад</button>
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-12 col-lg-10 col-md-10">
+            <hr class="hr-header-big" />
+            <hr class="hr-header-small" />
+        </div>
+        <div class="col-12 col-lg-1 col-md-1 div-for-logout">
+            
+        </div>
+    </div>
+</div>
+
+
+{% if courseTestLiteViewModel %}
+<div class="container">
+    <div class="row page-test">
+
+        <div class="col-2 d-none d-md-block"></div>
+        <div class="col-12 col-lg-8 col-md-8 col-sm-12">
+            
+            <h2 class="name">Тест: {{ courseTestLiteViewModel.name }}</h2>
+            
+            <div class="start {% if courseTestLiteViewModel.courseTestUserLiteViewModel and courseTestLiteViewModel.courseTestUserLiteViewModel.is_passed == True %} hide {% endif %}">
+                <!-- Нужно проверить на сдачу -->
+
+                <div class="description">
+                    Для начала прохождения теста нажмите пожалуйста "Начать тест". Для прохождения теста вам нужно будет набрать {{ courseTestLiteViewModel.points_to_pass }} баллов
+
+                    {% if courseTestLiteViewModel.courseTestUserLiteViewModel and courseTestLiteViewModel.courseTestUserLiteViewModel.is_passed == False %}
+                        <br /> В последний раз вы набрали <span class="points">{{ courseTestLiteViewModel.courseTestUserLiteViewModel.points }}</span> баллов. Для зачет необходимо набрать минимум <span class="points_to_pass">{{ courseTestLiteViewModel.courseTestUserLiteViewModel.points_to_pass }}</span>.
+                    {% endif %}
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn" onclick="start()">Начать тест</button>
+                </div>
+            </div>
+            
+            <div class="question hide">
+                <p class="number"></p>
+                <p class="content"></p>
+                
+                <div class="answers">
+
+                </div>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <button type="button" class="btn prev" onclick="prev();">Пред</button>
+                    </div>
+                    <div class="col-6 text-right">
+                        <button type="button" class="btn next" onclick="next();">Сохранить и след</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results success {% if courseTestLiteViewModel.courseTestUserLiteViewModel and courseTestLiteViewModel.courseTestUserLiteViewModel.is_passed == True %} {% else %} hide {% endif %}">
+                <p class="description text-center">Тест успешно завершен. Вы набрали <span class="points">{% if courseTestLiteViewModel.courseTestUserLiteViewModel and courseTestLiteViewModel.courseTestUserLiteViewModel.is_passed == True %}{{ courseTestLiteViewModel.courseTestUserLiteViewModel.points }}{% endif %}</span> баллов, для зачет необходимо было набрать минимум <span class="points_to_pass">{% if courseTestLiteViewModel.courseTestUserLiteViewModel and courseTestLiteViewModel.courseTestUserLiteViewModel.is_passed == True %}{{ courseTestLiteViewModel.courseTestUserLiteViewModel.points_to_pass }}{% endif %}</span>.</p>
+            </div>
+
+            <div class="results failed hide">
+                <p class="description text-center">Тест окончен. Вы набрали <span class="points"></span> баллов. Для зачет необходимо набрать минимум <span class="points_to_pass"></span>. К сожалению, вы не смогли набрать достаточное количество баллов.<br />
+                Если попробовать еще раз, нажмите кнопку "Попробовать снова" снизу.</p>
+                <div class="text-center">
+                    <button class="btn" onclick="start()">Попробовать снова</button>
+                </div>
+            </div>
+
+            <div class="row system-loading hide">
+                <div class="col-4 d-none d-md-block"></div>
+                <div class="col-12 col-lg-4 col-md-4">
+                    <p class="text-center">Подождите пожалуйста, идет загрузка...</p>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+
+<script>
+    const courseTestId = parseInt("{{ courseTestLiteViewModel.id }}", 10);
+    let currentCourseTestQuestionId = 0;
+    let currentCourseTestQuestionNumber = 1;
+    let commandCurrent = "start";
+
+    const btnPrevEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("btn prev")[0];
+    //const questionNumberEl = blockQuestionEl.getElementsByClassName("btn next")[0];
+
+    const blockStartEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("start")[0];
+    const blockQuestionEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("question")[0];
+    const blockLoadingEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("system-loading")[0];
+
+    const questionNumberEl = blockQuestionEl.getElementsByClassName("number")[0];
+    const questionContentEl = blockQuestionEl.getElementsByClassName("content")[0];
+    const questionAnswersEl = blockQuestionEl.getElementsByClassName("answers")[0];
+
+    const blockResultSuccessEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("results success")[0];
+    const resultSuccessPointsEl = blockResultSuccessEl.getElementsByClassName("points")[0];
+    const resultSuccessPointsToPassEl = blockResultSuccessEl.getElementsByClassName("points_to_pass")[0];
+    const blockResultFailedEl = document.getElementsByClassName("page-test")[0].getElementsByClassName("results failed")[0];
+    const resultFailedPointsEl = blockResultFailedEl.getElementsByClassName("points")[0];
+    const resultFailedPointsToPassEl = blockResultFailedEl.getElementsByClassName("points_to_pass")[0];
+
+    let answerIds = [];
+    let is_finished = false;
+    let is_passed = false;
+
+    let isLoading = false;
+    const setIsLoading = (value) => {
+        isLoading = value;
+        blockLoadingEl.style.display = value ? "flex" : "none";
+
+        const buttons = Array.from(document.getElementsByTagName("button"));
+        buttons.forEach(button => {
+            button.disabled = value;
+        });
+        if(value) {
+            blockStartEl.classList.add("hide");
+            blockQuestionEl.classList.add("hide");
+            blockResultFailedEl.classList.add("hide");
+            blockResultSuccessEl.classList.add("hide");
+        } else {
+            checkBlocksDisplay();
+        }
+    }
+
+    function checkBlocksDisplay(){
+        if(is_finished){
+            blockStartEl.classList.add("hide");
+            blockQuestionEl.classList.add("hide");
+            if(is_passed){
+                blockResultFailedEl.classList.add("hide");
+                blockResultSuccessEl.classList.remove("hide");
+            } else {
+                blockResultFailedEl.classList.remove("hide");
+                blockResultSuccessEl.classList.add("hide");
+            }
+        } else if(commandCurrent === "start"){
+            blockStartEl.classList.remove("hide");
+            blockQuestionEl.classList.add("hide");
+        } else if(commandCurrent === "question"){
+            blockStartEl.classList.add("hide");
+            blockQuestionEl.classList.remove("hide");
+        }
+
+        btnPrevEl.disabled = (currentCourseTestQuestionNumber <= 1);
+    }
+
+    
+async function prev(){
+    commandCurrent = "prev";
+    await sendCommand();
+}
+async function next(){
+
+    answerIds = [];
+    const inputs = Array.from(questionAnswersEl.getElementsByTagName("input")); 
+    inputs.forEach(input => {
+        if(input.checked){
+            answerIds.push(parseInt(new String(input.id).replace("answer-", ""), 10));
+        }
+    });
+
+    commandCurrent = "question";
+    await sendCommand();
+}
+
+async function start(){
+    commandCurrent = "start";
+    currentCourseTestQuestionNumber = 1;
+    is_finished = false;
+    is_passed = false;
+    await sendCommand();
+}
+
+async function sendCommand(){
+
+    let formData = new FormData();
+    formData.append("course_test_id", courseTestId);
+    formData.append("command", commandCurrent);
+    formData.append("course_test_question_id", currentCourseTestQuestionId);
+    formData.append("course_test_question_number", currentCourseTestQuestionNumber);
+    formData.append("answer_ids_list", answerIds.toString());
+    let isError = false;
+
+    setIsLoading(true);
+    try {
+        await fetch("/api/course/test/user/command", {
+            method : "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(baseResponse => {
+            if(typeof(baseResponse["error"]) !== "undefined" && baseResponse["error"] != null && baseResponse["error"] !== "")
+            {
+                isError = true;
+            } else if(typeof(baseResponse["courseTestUserStatusViewModel"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"] != null)
+            {
+                console.log(typeof(baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"] != null
+                && typeof(baseResponse["courseTestUserStatusViewModel"]["is_finished"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"]["is_finished"] === true);
+                if(typeof(baseResponse["courseTestUserStatusViewModel"]["question"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"]["question"] != null){
+                    questionNumberEl.innerHTML = "Вопрос " + baseResponse["courseTestUserStatusViewModel"]["course_test_question_current_number"] + "/" + baseResponse["courseTestUserStatusViewModel"]["course_test_question_numbers"];
+                    
+                    currentCourseTestQuestionId = baseResponse["courseTestUserStatusViewModel"]["question"]["id"];
+                    currentCourseTestQuestionNumber = baseResponse["courseTestUserStatusViewModel"]["course_test_question_current_number"];
+                    buildQuestion(baseResponse["courseTestUserStatusViewModel"]["question"]);
+                } else if(typeof(baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"] != null
+                && typeof(baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["is_finished"]) !== "undefined" && baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["is_finished"] === true){
+                    is_finished = baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["is_finished"];
+                    is_passed = baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["is_passed"];
+                    showPoints(
+                        is_passed, 
+                        baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["points"], 
+                        baseResponse["courseTestUserStatusViewModel"]["courseTestUserLiteViewModel"]["points_to_pass"]
+                    );
+                }
+            }
+        })
+    } catch(error)
+    {
+        console.log(error);
+        isError = true;
+    } finally
+    {
+        commandCurrent = "question";
+        setIsLoading(false);
+        if(!isError){
+            //setWarning("Успешно сохранено");
+        }
+    }
+}
+
+function showPoints(is_passed, points, points_to_pass){
+    console.log("showPoints is_passed: " + is_passed);
+    if(is_passed){
+        resultSuccessPointsEl.innerHTML = points;
+        resultSuccessPointsToPassEl.innerHTML = points_to_pass;
+    } else {
+        resultFailedPointsEl.innerHTML = points;
+        resultFailedPointsToPassEl.innerHTML = points_to_pass;
+    }
+}
+
+function buildQuestion(courseTestQuestionUserLiteViewModel){
+    questionContentEl.innerHTML = courseTestQuestionUserLiteViewModel["content"];
+    questionAnswersEl.innerHTML = "";
+    courseTestQuestionUserLiteViewModel["answers"].forEach(answer => {
+        questionAnswersEl.appendChild(buildQuestionAnswer(answer));
+    });
+}
+
+function buildQuestionAnswer(courseTestQiestionUserAnswersForQuestion){
+    const divAnswer = document.createElement("div");
+    divAnswer.className = "answer";
+
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.id = "answer-" + courseTestQiestionUserAnswersForQuestion["id"];
+    if(courseTestQiestionUserAnswersForQuestion["is_checked"]){
+        input.setAttribute("checked", "");
+    }
+    
+
+    const labelAnswer = document.createElement("label");
+    labelAnswer.appendChild(input);
+    labelAnswer.innerHTML += courseTestQiestionUserAnswersForQuestion["number"] + ") " + courseTestQiestionUserAnswersForQuestion["content"];
+
+    divAnswer.appendChild(labelAnswer);
+    return divAnswer;
+}
+</script>
+{% endif %}
+
+{% endblock %}

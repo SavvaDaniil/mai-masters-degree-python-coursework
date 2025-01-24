@@ -1,0 +1,85 @@
+{% extends "layout/main.html" %}
+
+{% load static %}
+
+{% block content %}
+
+{% include "partials/header_course_lesson.html" with link_back=link_back %}
+
+
+<div class="container">
+    <div class="row page-lesson">
+        {% if courseLessonInfoViewModel %}
+        
+        <div class="col-1 d-none d-md-block"></div>
+        <div class="col-12 col-lg-10 col-md-10 col-sm-12 row">
+            <div class="col-12">
+                <h5 class="course-name">{{ courseLessonInfoViewModel.course_name }}</h5>
+                <h3 class="name">Занятие №{{ courseLessonInfoViewModel.order_in_list }}. {{ courseLessonInfoViewModel.name }}</h4>
+            </div>
+
+            <div class="col-12">
+                {% if courseLessonInfoViewModel.courseLessonPreviewViewModels %}
+                <ul class="lesson-previews">
+                    {% for courseLessonPreviewViewModel in courseLessonInfoViewModel.courseLessonPreviewViewModels %}
+                        <li class="{% if courseLessonInfoViewModel.id == courseLessonPreviewViewModel.id %} active {% endif %}">
+                            <a href="/course/{{ courseLessonInfoViewModel.course_id }}/lesson/{{ courseLessonPreviewViewModel.id }}">
+                                Занятие №{{ courseLessonPreviewViewModel.order_in_list }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            {% if courseLessonInfoViewModel.slides %}
+            <div class="col-12 row slider">
+                <div class="col-12 slider-content text-center">
+                    <img src="{{ courseLessonInfoViewModel.slides.0 }}" class="img-fluid" />
+                </div>
+
+                <div class="col-6"><button class="btn" disabled="true" id="slider-control-prev" disabled onclick="sliderControl(false);">Пред</button></div>
+                {% if courseLessonInfoViewModel.slides|length == 1 %}
+                <div class="col-6 text-right"><button class="btn" id="slider-control-next" onclick="sliderControl(true);">След</button></div>
+                {% else %}
+                <div class="col-6 text-right"><button class="btn" id="slider-control-next" onclick="sliderControl(true);">След</button></div>
+                {% endif %}
+                <script>
+                    let slidesStr = "{{ courseLessonInfoViewModel.slides|safe }}";
+                    slidesStr = slidesStr.replace(/'/g, '"');
+                    const slides = JSON.parse(slidesStr);
+                    const sliderContentEl = document.getElementsByClassName("slider-content")[0].getElementsByTagName("img")[0];
+                    const btnPrev = document.getElementById("slider-control-prev");
+                    const btnNext = document.getElementById("slider-control-next");
+                    let slideCurrent = 0;
+                    function sliderControl(isNext){
+                        if(isNext){
+                            if(slideCurrent + 1 >= slides.length){
+                                return;
+                            }
+                            slideCurrent += 1;
+                        } else {
+                            if(slideCurrent == 0){
+                                return;
+                            }
+                            slideCurrent -= 1;
+                        }
+                        sliderContentEl.src = slides[slideCurrent];
+                        checkSliderBtns();
+                    }
+                    function checkSliderBtns(){
+                        btnNext.disabled = (slideCurrent + 1 >= slides.length);
+                        btnPrev.disabled = (slideCurrent <= 0);
+                    }
+                </script>
+            </div>
+            {% endif %}
+
+            <div class="col-12 row content">
+                {{ courseLessonInfoViewModel.content }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
