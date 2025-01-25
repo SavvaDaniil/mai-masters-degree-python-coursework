@@ -38,7 +38,7 @@ class Course(Model):
     description: TextField = TextField("Описание", blank=True, null=True)
     is_active = BooleanField("Доступен пользователям?", default=False)
     is_visible = BooleanField("Отображается пользователям?", default=False)
-    courseTest: ForeignKey = ForeignKey(to=CourseTest, null=True, on_delete = CASCADE)
+    courseTest: ForeignKey = ForeignKey(to=CourseTest, blank=True, null=True, on_delete = CASCADE)
     is_need_test = BooleanField("Тест доступен?", default=False)
 
     date_of_add: DateTimeField = DateTimeField(null=True, blank=True, editable = False)

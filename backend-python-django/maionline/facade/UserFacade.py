@@ -87,11 +87,6 @@ class UserFacade:
         admin_default_username: str = "admin"
         userDefault: Union[User, None] = self.userRepository.find_by_username("admin")
         if userDefault is None:
-            userDefault = User()
-            userDefault.is_active = True
-            userDefault.is_superuser = True
-            userDefault.username = admin_default_username
-            userDefault.set_password("master")
-            userDefault.save()
+            User.objects.create_superuser(admin_default_username, "savva.d@mail.ru", "master")
         
         

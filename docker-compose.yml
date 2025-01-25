@@ -33,9 +33,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # volumes:
-    #   - ./volumes/backend-python-django:/app/maionline/uploads
-    #   - ./volumes/backend-python-django:/app/logfile.log
+    volumes:
+      - ./volumes/backend-python-django/maionline:/app/uploads
+      - ./volumes/backend-python-django/maionline/migrations:/app/maionline/migrations
+    #  - ./volumes/backend-python-django:/app/logfile.log
     environment:
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
