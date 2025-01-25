@@ -34,6 +34,7 @@ services:
       db:
         condition: service_healthy
     # volumes:
+    #   - ./volumes/backend-python-django:/app/maionline/uploads
     #   - ./volumes/backend-python-django:/app/logfile.log
     environment:
       - DATABASE_HOST=db
